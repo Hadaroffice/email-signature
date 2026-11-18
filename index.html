@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חתימות מייל - הדר</title>
+<style>
+  body{font-family:Arial,sans-serif;background:#f4f4f6;margin:0;padding:24px;color:#222}
+  .card{background:#fff;border-radius:10px;padding:20px 24px;margin:0 auto 24px;max-width:720px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  h1{font-size:20px;max-width:720px;margin:0 auto 16px}
+  h2{font-size:16px;margin:0 0 12px}
+  .preview{border:1px dashed #ccc;padding:16px;margin:12px 0;direction:ltr}
+  button{background:#24287b;color:#fff;border:0;border-radius:6px;padding:10px 18px;font-size:15px;cursor:pointer}
+  .ok{color:#1a7f37;margin-right:10px;font-size:14px}
+</style>
+</head>
+<body>
+<h1>חתימות המייל שלך - ללחוץ "העתקה" ולהדביק בהגדרות החתימה</h1>
+
+<div class="card">
+  <h2>אדמיניקס - hadar@adminix.co.il</h2>
+  <div class="preview" id="p-adminix"></div>
+  <button onclick="copySig('adminix')">העתקת החתימה</button><span class="ok" id="ok-adminix"></span>
+</div>
+
+<div class="card">
+  <h2>הפרטי - hadardan.biz@gmail.com</h2>
+  <div class="preview" id="p-gmail"></div>
+  <button onclick="copySig('gmail')">העתקת החתימה</button><span class="ok" id="ok-gmail"></span>
+</div>
+
+<script>
+// כתובת קבועה שבה התמונות מאוחסנות (גיטהאב פייג'ס של Hadaroffice)
+const HOSTED = "https://hadaroffice.github.io/email-signature/images/";
+const EMAILS = { adminix: "hadar@adminix.co.il", gmail: "hadardan.biz@gmail.com" };
+const C = "#24287b", F = "Tahoma,sans-serif";
+
+function icon(base, name, href) {
+  return `<td width="23" style="font-size:0;line-height:0;padding:13px 2px 0 0"><a href="${href}" target="_blank"><img src="${base}${name}.png" alt="${name}" width="23" height="23" style="display:block;border:0;width:23px;height:23px"></a></td>`;
+}
+
+function sig(key, base) {
+  const email = EMAILS[key];
+  return `<table cellpadding="0" cellspacing="0" border="0" dir="ltr" style="direction:ltr;text-align:left"><tr><td>
+<table cellpadding="0" cellspacing="0" border="0"><tr>
+<td style="padding:0 18px 0 0;vertical-align:top"><img src="${base}adminix-logo.png" alt="Adminix" width="150" height="66" style="display:block;border:0;width:150px;height:66px"></td>
+<td style="vertical-align:top">
+ <table cellpadding="0" cellspacing="0" border="0">
+  <tr><td style="font-family:${F};font-size:13px;line-height:17px;font-weight:700;color:${C}">Hadar Dan</td></tr>
+  <tr><td style="padding-top:10px;font-family:${F};font-size:13px;line-height:17px"><a href="mailto:${email}" style="color:${C};text-decoration:none">${email}</a></td></tr>
+  <tr><td style="font-family:${F};font-size:13px;line-height:17px"><a href="tel:+972528729522" style="color:${C};text-decoration:none">+972-52-8729522</a></td></tr>
+  <tr><td><table cellpadding="0" cellspacing="0" border="0"><tr>
+   ${icon(base, "whatsapp", "https://wa.me/972528729522")}
+   ${icon(base, "linkedin", "https://www.linkedin.com/in/hadardan/")}
+   ${icon(base, "instagram", "https://www.instagram.com/hadardan.office/")}
+   ${icon(base, "facebook", "https://www.facebook.com/profile.php?id=61553820549307")}
+  </tr></table></td></tr>
+ </table>
+</td></tr></table>
+</td></tr>
+<tr><td dir="rtl" style="direction:rtl;text-align:left;padding-top:15px;font-family:${F};font-size:10px;line-height:13px;color:#888888">אם אתם רוצים להגיע מהר - רוצו לבד<br>אם אתם רוצים להגיע רחוק - רוצו ביחד</td></tr>
+</table>`;
+}
+
+// בתצוגה: תמונות מהאתר המאוחסן, ואם לא נטען (פתיחה מקומית לפני העלאה) - מהתיקייה
+const local = location.protocol === "file:";
+for (const k of Object.keys(EMAILS)) {
+  document.getElementById("p-" + k).innerHTML = sig(k, local ? "images/" : HOSTED);
+}
+
+async function copySig(key) {
+  const html = sig(key, HOSTED);
+  const el = document.getElementById("ok-" + key);
+  try {
+    await navigator.clipboard.write([new ClipboardItem({
+      "text/html": new Blob([html], { type: "text/html" }),
+      "text/plain": new Blob([EMAILS[key]], { type: "text/plain" })
+    })]);
+    el.textContent = "הועתק ✓ עכשיו להדביק (Ctrl+V) בתיבת החתימה";
+  } catch (e) {
+    // גיבוי: לסמן את התצוגה ולהעתיק
+    const r = document.createRange(); r.selectNode(document.getElementById("p-" + key));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand("copy"); s.removeAllRanges();
+    el.textContent = "הועתק ✓";
+  }
+}
+</script>
+</body>
+</html>
